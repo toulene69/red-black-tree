@@ -122,19 +122,14 @@ void delete_fixup(Node **root, Node *node)
                     sibling->color = RED;
                     x = x->parent;
                 }
-                else if (sibling->lchild->color == BLACK) { // right child of sibling is red
-                    sibling->color = x->parent->color;
-                    sibling->rchild->color = BLACK;
-                    x->parent->color = BLACK;
-                    left_rotate(root, x->parent);
-                    x = *root;
-                }
-                else { // left child of sibling is red and right child id black
-                    sibling->lchild->color = BLACK;
-                    sibling->color = RED;
-                    right_rotate(root, sibling);
-                    sibling = x->parent->rchild;
-                    
+                else {
+                    if (sibling->rchild->color == BLACK) { // right child of sibling is black
+                        sibling->lchild->color = BLACK;
+                        sibling->color = RED;
+                        right_rotate(root, sibling);
+                        sibling = x->parent->rchild;
+                    }
+                    // right child of sibling is red and right child is black
                     sibling->color = x->parent->color;
                     sibling->rchild->color = BLACK;
                     x->parent->color = BLACK;
@@ -143,18 +138,43 @@ void delete_fixup(Node **root, Node *node)
                 }
             }
             else { // sibling of x is red
-                
+                sibling->color = BLACK;
+                x->parent->color = RED;
+                left_rotate(root, x->parent);
+                sibling = x->parent->rchild;
             }
         }
         else { // x is the right child (symmetric to above
-            if (parent->lchild->color == BLACK) { // sibling of x is black
-                
+            sibling = parent->lchild;
+            if (sibling->color == BLACK) { // sibling of x is black
+                if (sibling->lchild->color == BLACK && sibling->rchild->color == BLACK) {
+                    sibling->color = RED;
+                    x = x->parent;
+                }
+                else {
+                    if (sibling->lchild->color == BLACK) { // sibling lchild is black
+                        sibling->rchild->color = BLACK;
+                        sibling->color = RED;
+                        left_rotate(root, sibling);
+                        sibling = x->parent->lchild;
+                    }
+                    //sibling lchild is red
+                    sibling->color = x->parent->color;
+                    sibling->lchild->color = BLACK;
+                    right_rotate(root, x->parent);
+                    x = *root;
+                }
             }
             else { // sibling of x is red
-                
+                sibling->color = BLACK;
+                x->parent->color = RED;
+                right_rotate(root, x->parent);
+                sibling = x->parent->lchild;
             }
         }
     }
+    (*root)->color = BLACK;
+    leaf.parent = NULL;
 }
 
 void delete_node(Node **root, int data)
@@ -181,7 +201,10 @@ void delete_node(Node **root, int data)
     else {
         x = y->rchild;
     }
+    
     x->parent = y->parent;
+    
+    
     if (y->parent!=NIL) {
         if (y == y->parent->lchild) {
             y->parent->lchild = x;

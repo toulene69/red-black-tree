@@ -33,5 +33,7 @@ int main(int argc, const char * argv[]) {
     cout<<black_height_rb_tree(root)<<endl;
     insert_node(&root, 10);
     cout<<black_height_rb_tree(root)<<endl;
+    delete_node(&root, 50);
+    cout<<black_height_rb_tree(root)<<endl;
     return 0;
 }
